@@ -1,4 +1,4 @@
-FROM golang:1.15 as build
+FROM golang:1.21 as build
 
 # Create appuser.
 # See https://stackoverflow.com/a/55757473/12429735
@@ -14,12 +14,12 @@ RUN adduser \
     "${USER}"
 
 RUN apt-get update && apt-get install -y ca-certificates
-RUN go get github.com/tanqinwang/hey
+COPY . /app
 
 # Build
-WORKDIR /go/src/github.com/tanqinwang/hey
+WORKDIR /app
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/hey hey.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o hey .
 
 ###############################################################################
 # final stage
@@ -40,5 +40,5 @@ LABEL org.opencontainers.image.ref.name="${PACKAGE}" \
     org.opencontainers.image.licenses="Apache 2.0" \
     org.opencontainers.image.source="https://github.com/${PACKAGE}"
 
-COPY --from=build /go/bin/${APPLICATION} /hey
+COPY --from=build /app/${APPLICATION} /hey
 ENTRYPOINT ["/hey"]
