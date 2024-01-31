@@ -16,7 +16,7 @@ package requester
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -35,9 +35,10 @@ func TestN(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", server.URL, nil)
 	w := &Work{
-		Request: req,
-		N:       20,
-		C:       2,
+		Request:         req,
+		N:               20,
+		C:               2,
+		DisableDumpBody: true,
 	}
 	w.Run()
 	if count != 20 {
@@ -56,10 +57,11 @@ func TestQps(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", server.URL, nil)
 	w := &Work{
-		Request: req,
-		N:       20,
-		C:       2,
-		QPS:     1,
+		Request:         req,
+		N:               20,
+		C:               2,
+		QPS:             1,
+		DisableDumpBody: true,
 	}
 	wg.Add(1)
 	time.AfterFunc(time.Second, func() {
@@ -90,9 +92,10 @@ func TestRequest(t *testing.T) {
 	req.Header = header
 	req.SetBasicAuth("username", "password")
 	w := &Work{
-		Request: req,
-		N:       1,
-		C:       1,
+		Request:         req,
+		N:               1,
+		C:               1,
+		DisableDumpBody: true,
 	}
 	w.Run()
 	if uri != "/" {
@@ -112,7 +115,7 @@ func TestRequest(t *testing.T) {
 func TestBody(t *testing.T) {
 	var count int64
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		body, _ := ioutil.ReadAll(r.Body)
+		body, _ := io.ReadAll(r.Body)
 		if string(body) == "Body" {
 			atomic.AddInt64(&count, 1)
 		}
@@ -122,10 +125,11 @@ func TestBody(t *testing.T) {
 
 	req, _ := http.NewRequest("POST", server.URL, bytes.NewBuffer([]byte("Body")))
 	w := &Work{
-		Request:     req,
-		RequestBody: []byte("Body"),
-		N:           10,
-		C:           1,
+		Request:         req,
+		RequestBody:     []byte("Body"),
+		N:               10,
+		C:               1,
+		DisableDumpBody: true,
 	}
 	w.Run()
 	if count != 10 {
