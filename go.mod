@@ -1,8 +1,7 @@
 module github.com/tanqinwang/hey
 
-require (
-	golang.org/x/net v0.0.0-20191009170851-d66e71096ffb
-	golang.org/x/text v0.3.2 // indirect
-)
+require golang.org/x/net v0.21.0
+
+require golang.org/x/text v0.14.0 // indirect
 
 go 1.21
