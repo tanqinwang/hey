@@ -280,12 +280,19 @@ func parseInputWithRegexp(input, regx string) ([]string, error) {
 func getURL(url string) string {
 	if strings.HasPrefix(url, ":") {
 		url = "http://127.0.0.1" + url
-	}
-	if !strings.HasPrefix(url, "http://") {
-		url = "http://" + url
+		return url
 	}
 
-	return url
+	parsedURL, err := gourl.Parse(url)
+	if err != nil {
+		return url
+	}
+
+	if parsedURL.Scheme == "" {
+		parsedURL.Scheme = "http"
+	}
+
+	return parsedURL.String()
 }
 
 type headerSlice []string
